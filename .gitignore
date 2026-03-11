@@ -1,0 +1,49 @@
+# ----- Binary/Executable Outputs -----
+# Common names for compiled Go binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+out/
+dist/
+# If you name your service binaries after the folder, 
+# you might want to add specific names here.
+
+# ----- Dependency & Tooling -----
+# Vendor directory is usually ignored unless you strictly 
+# use 'go mod vendor' for CI/CD consistency.
+vendor/
+# Go workspace file (if you use local development overrides)
+go.work.sum
+
+# ----- Testing & Coverage -----
+*.test
+*.out
+coverage.txt
+profile.out
+
+# ----- Environment & Secrets -----
+# Never commit your .env files!
+.env
+*.env
+.env.local
+.env.*.local
+
+# ----- IDE & OS Specific -----
+# JetBrains (GoLand/IntelliJ)
+.idea/
+*.iwb
+*.iws
+
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# MacOS/Windows
+.DS_Store
+Thumbs.db
