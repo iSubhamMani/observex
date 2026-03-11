@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package metrics;
+
+option go_package = "github.com/iSubhamMani/observex/proto;proto";
+
+message Metric {
+  int64 timestamp = 1;
+
+  double cpu_usage = 2;
+  double mem_usage = 3;
+  double disk_usage = 4;
+  double net_usage = 5;
+}
+
+message MetricBatch {
+    string host_id = 1;
+    repeated Metric metrics = 2;
+}
+
+message Ack {
+  bool success = 1;
+  string message = 2;
+}
+
+service MetricsService {
+  rpc SendMetrics (MetricBatch) returns (Ack);
+}
