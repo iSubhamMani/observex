@@ -3,11 +3,13 @@ module agent
 go 1.26.1
 
 require github.com/iSubhamMani/observex/proto v0.0.0
+
 replace github.com/iSubhamMani/observex/proto => ../proto
 
 require (
 	github.com/ebitengine/purego v0.10.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
+	github.com/google/uuid v1.6.0
 	github.com/shirou/gopsutil/v4 v4.26.2 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/net v0.48.0 // indirect
