@@ -19,7 +19,7 @@ func main() {
 	// TODO: replace with actual host ID retrieval logic
 	hostId := uuid.New().String() 
 
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(time.Second)
 
 	var batch []*pb.Metric
 
@@ -33,7 +33,7 @@ func main() {
 
 		batch = append(batch, metric)
 
-		if len(batch) >= 5 {
+		if len(batch) >= 10 {
 
 			req := &pb.MetricBatch{
 				HostId:  hostId,
