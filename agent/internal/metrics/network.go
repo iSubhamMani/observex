@@ -1,6 +1,8 @@
 package metrics
 
 import (
+	"math"
+
 	"github.com/shirou/gopsutil/v4/net"
 )
 
@@ -11,5 +13,5 @@ func GetNetworkMetrics() (float64, error) {
 	}
 
 	total := stats[0].BytesRecv + stats[0].BytesSent
-	return float64(total), nil
+	return math.Round(float64(total) *100) / 100, nil
 }

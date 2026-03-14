@@ -1,6 +1,8 @@
 package metrics
 
 import (
+	"math"
+
 	"github.com/shirou/gopsutil/v4/cpu"
 )
 
@@ -10,5 +12,5 @@ func GetCPUUsage() (float64, error) {
 		return 0, err
 	}
 
-	return percent[0], nil
+	return math.Round(percent[0]*100) / 100, nil
 }

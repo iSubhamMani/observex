@@ -1,6 +1,8 @@
 package metrics
 
 import (
+	"math"
+
 	"github.com/shirou/gopsutil/v4/mem"
 )
 
@@ -10,5 +12,5 @@ func GetMemoryMetrics() (float64, error) {
 		return 0, err
 	}
 
-	return vmStat.UsedPercent, nil
+	return math.Round(vmStat.UsedPercent * 100) / 100, nil
 }

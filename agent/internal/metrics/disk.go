@@ -1,6 +1,8 @@
 package metrics
 
 import (
+	"math"
+
 	"github.com/shirou/gopsutil/v4/disk"
 )
 
@@ -10,5 +12,5 @@ func GetDiskMetrics() (float64, error) {
 		return 0, err
 	}
 
-	return usage.UsedPercent, nil
+	return math.Round(usage.UsedPercent * 100) / 100, nil
 }
