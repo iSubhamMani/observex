@@ -7,22 +7,15 @@ import (
 	"os"
 	"worker/internal/influx"
 	"worker/internal/redis"
+	"worker/pkg/models"
 
 	"github.com/joho/godotenv"
 	rd "github.com/redis/go-redis/v9"
 )
 
-type Metric struct {
-	Timestamp   int64   `json:"timestamp"`
-	CPUUsage    float64 `json:"cpu_usage"`
-	MemoryUsage float64 `json:"mem_usage"`
-	DiskUsage   float64 `json:"disk_usage"`
-	NetUsage    float64 `json:"net_usage"`
-}
-
 type Payload struct {
 	HostID string   `json:"host_id"`
-	Data   []Metric `json:"data"`
+	Data   []models.Metric `json:"data"`
 }
 
 func main() {
@@ -76,31 +69,18 @@ func main() {
 				continue
 			}
 
-			var metrics []Metric
+			var metrics []models.Metric
 			err := json.Unmarshal([]byte(data), &metrics)
 			if err != nil {
 				log.Println("json decode error:", err)
 				return
 			}
 
-			for _, metric := range metrics {
-
-				err = writer.WriteMetric(
-					ctx,
-					hostID,
-					metric.CPUUsage,
-					metric.DiskUsage,
-					metric.MemoryUsage,
-					metric.NetUsage,
-					metric.Timestamp,
-				)
-
-				if err != nil {
-					log.Println("influx write error:", err)
-					continue
-				}
-			}
-
+			err = writer.WriteBatchMetrics(
+				ctx,
+				hostID,
+				metrics,
+			)
 
 			if err != nil {
 				log.Println("influx write error:", err)
