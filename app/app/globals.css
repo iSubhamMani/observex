@@ -44,8 +44,8 @@
   --card-foreground: oklch(0.18 0.02 270);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.18 0.02 270);
-  --primary: oklch(0.72 0.16 295); /* lavender purple */
-  --primary-foreground: oklch(0.18 0.02 270);
+  --primary: oklch(58.012% 0.25098 291.995); /* lavender purple */
+  --primary-foreground: oklch(100% 0.00011 271.152);
   --secondary: oklch(0.95 0.01 85);
   --secondary-foreground: oklch(0.18 0.02 270);
   --muted: oklch(0.94 0.008 85);
