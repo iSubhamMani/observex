@@ -1,42 +1,47 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
-
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 type Theme = "light" | "dark";
-const ThemeCtx = createContext<{ theme: Theme; toggle: () => void }>({
-  theme: "dark",
+interface ThemeContextValue {
+  theme: Theme;
+  toggle: () => void;
+}
+const ThemeContext = createContext<ThemeContextValue>({
+  theme: "light",
   toggle: () => {},
 });
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === "undefined") return "dark";
-    const saved = localStorage.getItem("observex-theme") as Theme | null;
-    return saved ?? "dark";
-  });
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<Theme>("light");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (typeof document === "undefined") return;
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    localStorage.setItem("observex-theme", theme);
-  }, [theme]);
+    const stored = localStorage.getItem("observex-theme") as Theme | null;
+    const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+    const initial = stored || preferred;
+    setTheme(initial);
+    document.documentElement.classList.toggle("dark", initial === "dark");
+    setMounted(true);
+  }, []);
 
+  const toggle = () => {
+    const next: Theme = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    localStorage.setItem("observex-theme", next);
+    document.documentElement.classList.toggle("dark", next === "dark");
+  };
+
+  if (!mounted) return <div style={{ visibility: "hidden" }}>{children}</div>;
   return (
-    <ThemeCtx.Provider
-      value={{
-        theme,
-        toggle: () => setTheme(theme === "dark" ? "light" : "dark"),
-      }}
-    >
+    <ThemeContext.Provider value={{ theme, toggle }}>
       {children}
-    </ThemeCtx.Provider>
+    </ThemeContext.Provider>
   );
 }
 
-export const useTheme = () => useContext(ThemeCtx);
+export function useTheme() {
+  return useContext(ThemeContext);
+}
