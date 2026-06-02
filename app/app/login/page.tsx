@@ -1,0 +1,94 @@
+"use client";
+
+import { AuthShell } from "@/components/AuthShell";
+import Field from "@/components/ui/Field";
+import axios from "axios";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { RiLoader5Line } from "react-icons/ri";
+
+export default function LoginPage() {
+  const [loginDetails, setLoginDetails] = useState({
+    email: "",
+    password: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  return (
+    <AuthShell
+      title="Welcome back"
+      subtitle="Sign in to your ObservEx dashboard."
+      footer={
+        <>
+          No account?{" "}
+          <Link
+            href={"/signup"}
+            className="text-primary hover:underline font-medium"
+          >
+            Create one
+          </Link>
+        </>
+      }
+    >
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+
+          if (!loginDetails.email.trim() || !loginDetails.password.trim()) {
+            return;
+          }
+
+          setIsLoading(true);
+
+          try {
+            const res = await axios.post("/api/auth/login", {
+              email: loginDetails.email.trim(),
+              password: loginDetails.password.trim(),
+            });
+
+            if (res.status === 200) {
+              router.replace("/dashboard");
+            }
+          } catch (error) {
+            console.error("Login failed", error);
+            // TODO: show error to user
+          } finally {
+            setIsLoading(false);
+          }
+        }}
+        className="space-y-4"
+      >
+        <Field
+          label="Email"
+          type="email"
+          placeholder="you@example.com"
+          required
+          onChange={(e) =>
+            setLoginDetails((prev) => ({ ...prev, email: e.target.value }))
+          }
+        />
+        <Field
+          label="Password"
+          type="password"
+          placeholder="••••••••"
+          required
+          onChange={(e) =>
+            setLoginDetails((prev) => ({ ...prev, password: e.target.value }))
+          }
+        />
+        <button
+          disabled={isLoading}
+          className="w-full flex items-center justify-center rounded-md bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+        >
+          {isLoading ? (
+            <RiLoader5Line className="animate-spin size-4" />
+          ) : (
+            "Sign in"
+          )}
+        </button>
+      </form>
+    </AuthShell>
+  );
+}
