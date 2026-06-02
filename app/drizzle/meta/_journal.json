@@ -8,6 +8,13 @@
       "when": 1780381692419,
       "tag": "0000_bored_black_crow",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1780413673282,
+      "tag": "0001_chilly_gorgon",
+      "breakpoints": true
     }
   ]
 }

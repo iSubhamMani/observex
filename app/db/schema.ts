@@ -17,3 +17,15 @@ export const usersTable = pgTable("users", {
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp().notNull().defaultNow(),
 });
+
+export const projectsTable = pgTable("projects", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  websiteId: varchar({ length: 255 }).notNull().unique(),
+  name: varchar({ length: 255 }).notNull(),
+  domain: varchar({ length: 255 }).notNull(),
+  owner: integer()
+    .notNull()
+    .references(() => usersTable.id),
+  createdAt: timestamp().notNull().defaultNow(),
+  updatedAt: timestamp().notNull().defaultNow(),
+});
