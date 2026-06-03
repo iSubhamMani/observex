@@ -22,6 +22,7 @@ export const ingestEvent = async (req: Request, res: Response) => {
       utm_campaign,
       utm_content,
     } = req.body;
+    const websiteId = website_id; // Ensure consistent naming
 
     // Extract headers
     const userAgent = req.headers["user-agent"] as string | undefined;
@@ -54,17 +55,17 @@ export const ingestEvent = async (req: Request, res: Response) => {
     // Drop Bots immediately
     if (isBot(userAgent)) return;
 
-    if (!website_id || !clientDomain) return; // Malformed payload
+    if (!websiteId || !clientDomain) return; // Malformed payload
 
     // Check Redis Cache for the allowed domain
-    /*const cacheKey = `site_domain:${website_id}`;
+    const cacheKey = `site_domain:${websiteId}`;
     let allowedDomain = await redis.get(cacheKey);
 
     // Cache Miss? Query NeonDB and update Cache
     if (!allowedDomain) {
       const { rows } = await db.query(
-        "SELECT domain FROM websites WHERE website_id = $1 LIMIT 1",
-        [website_id],
+        'SELECT domain FROM projects WHERE "websiteId" = $1 LIMIT 1',
+        [websiteId],
       );
 
       if (rows.length === 0) return;
@@ -76,20 +77,34 @@ export const ingestEvent = async (req: Request, res: Response) => {
     }
 
     // Origin Security Check
+    // Normalize allowed domain to include protocol if missing (for localhost testing)
+    let normalizedAllowed = allowedDomain!;
+    if (
+      !normalizedAllowed.startsWith("http://") &&
+      !normalizedAllowed.startsWith("https://")
+    ) {
+      const protocol =
+        normalizedAllowed.includes("localhost") ||
+        normalizedAllowed.includes("127.0.0.1")
+          ? "http://"
+          : "https://";
+      normalizedAllowed = protocol + normalizedAllowed;
+    }
+
     // We strip trailing slashes to ensure strict matching
     const cleanOrigin = clientDomain.replace(/\/$/, "");
-    const cleanAllowed = allowedDomain!.replace(/\/$/, "");
+    const cleanAllowed = normalizedAllowed.replace(/\/$/, "");
 
     if (cleanOrigin !== cleanAllowed) {
       console.warn(
         `Spoof attempt blocked: ${cleanOrigin} tried to spoof ${cleanAllowed}`,
       );
       return;
-    }*/
+    }
 
     // Passed all checks! Prepare payload for SQS
     const queuePayload = {
-      website_id,
+      websiteId,
       event_name,
       url,
       pathname,
@@ -107,7 +122,7 @@ export const ingestEvent = async (req: Request, res: Response) => {
     };
     console.log(`Payload: ${JSON.stringify(queuePayload)}`);
 
-    //await pushToQueue(queuePayload);
+    await pushToQueue(queuePayload);
   } catch (error) {
     console.error("Ingestion Error:", error);
   }
