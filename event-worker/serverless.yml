@@ -1,0 +1,20 @@
+service: analytics-sqs-worker
+
+provider:
+  name: aws
+  runtime: nodejs24.x
+  region: ap-south-1
+  stage: dev
+  environment:
+    TINYBIRD_TOKEN: ${env:TINYBIRD_TOKEN}
+    TINYBIRD_URL: ${env:TINYBIRD_URL}
+
+functions:
+  processEvents:
+    handler: src/handlers/eventConsumer.processBatch
+    events:
+      - sqs:
+          arn: arn:aws:sqs:ap-south-1:059639822914:observex-event-queue
+          # High-Performance Batch Optimization:
+          batchSize: 500
+          maximumBatchingWindow: 5 # Waits up to 5 seconds to collect 500 messages before firing

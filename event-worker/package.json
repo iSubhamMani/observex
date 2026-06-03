@@ -1,0 +1,19 @@
+{
+  "name": "lambda-worker",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@aws-sdk/client-sqs": "^3.1060.0",
+    "@maxmind/geoip2-node": "^6.3.4",
+    "cross-fetch": "^4.1.0",
+    "ua-parser-js": "^2.0.10"
+  }
+}
