@@ -1,6 +1,7 @@
 import fetch from "cross-fetch";
 import { parseDevice } from "../utils/deviceParser.js";
 import { initGeoIp, lookupGeo } from "../utils/geoip.js";
+import { generateVisitorHash } from "../utils/generateVisitorHash.js";
 
 await initGeoIp();
 
@@ -26,9 +27,23 @@ export const processBatch = async (event) => {
 
       const geo = lookupGeo(body.ip_address);
 
+      const tabSessionId = body.tabSessionId || null; // Optional field handling with fallback to null
+
+      // Generate unique visitor hash
+      let visitorId = null;
+
+      if (tabSessionId) {
+        visitorId = generateVisitorHash(
+          tabSessionId || "",
+          body.websiteId,
+          device,
+        );
+      }
+
       // 2. Map payload properties directly to match your Tinybird Data Source schema layout
       enrichedEvents.push({
         timestamp: body.timestamp,
+        visitorId,
         websiteId: body.websiteId,
         event_name: body.event_name,
         url: body.url,

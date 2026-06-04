@@ -8,6 +8,7 @@ provider:
   environment:
     TINYBIRD_TOKEN: ${env:TINYBIRD_TOKEN}
     TINYBIRD_URL: ${env:TINYBIRD_URL}
+    HASH_SECRET: ${env:HASH_SECRET}
 
 functions:
   processEvents:
