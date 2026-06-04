@@ -9,7 +9,8 @@ export const ingestEvent = async (req: Request, res: Response) => {
 
   try {
     const {
-      website_id,
+      tabSessionId,
+      websiteId,
       event_name,
       url,
       pathname,
@@ -22,7 +23,6 @@ export const ingestEvent = async (req: Request, res: Response) => {
       utm_campaign,
       utm_content,
     } = req.body;
-    const websiteId = website_id; // Ensure consistent naming
 
     // Extract headers
     const userAgent = req.headers["user-agent"] as string | undefined;
@@ -104,6 +104,7 @@ export const ingestEvent = async (req: Request, res: Response) => {
 
     // Passed all checks! Prepare payload for SQS
     const queuePayload = {
+      tabSessionId: tabSessionId ? String(tabSessionId) : undefined,
       websiteId,
       event_name,
       url,
@@ -120,6 +121,7 @@ export const ingestEvent = async (req: Request, res: Response) => {
       user_agent: userAgent,
       timestamp: new Date().toISOString(),
     };
+
     console.log(`Payload: ${JSON.stringify(queuePayload)}`);
 
     await pushToQueue(queuePayload);
