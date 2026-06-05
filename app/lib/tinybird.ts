@@ -12,6 +12,12 @@ export interface MetricsByDate {
   avgTime: number;
 }
 
+export interface UtmStat {
+  name: string;
+  views: number;
+  visitors: number;
+}
+
 export interface TopPage {
   path: string;
   views: number;
@@ -106,6 +112,32 @@ export const getMetricsByDate = cache(
       views: r.views,
       visitors: r.visitors,
       avgTime: r.avgTime, // Handled automatically
+    }));
+  },
+);
+
+export const getUtmStats = cache(
+  async (
+    websiteId: string,
+    daysBack: number,
+    type: "source" | "medium" | "campaign" | "term" | "content",
+    limit: number = 5,
+  ): Promise<UtmStat[]> => {
+    const now = new Date();
+    const start = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
+
+    const results = await queryTinybird<any>("stats_by_utm", {
+      websiteId,
+      start,
+      end: now,
+      type,
+      limit,
+    });
+
+    return results.map((r) => ({
+      name: r.name,
+      views: r.views,
+      visitors: r.visitors,
     }));
   },
 );

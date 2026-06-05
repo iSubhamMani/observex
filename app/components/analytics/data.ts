@@ -64,6 +64,24 @@ export async function seriesFor(id: string, days = 7) {
   }
 }
 
+// Add this helper module function inside your components/analytics/data.ts folder map
+export async function utmStats(
+  id: string,
+  days = 7,
+  type: "source" | "medium" | "campaign" | "term" | "content" = "source",
+) {
+  try {
+    const response = await fetch(
+      `/api/analytics/utm?websiteId=${id}&daysBack=${days}&type=${type}&limit=5`,
+    );
+    if (!response.ok) throw new Error("Failed to fetch custom UTM records");
+    return await response.json();
+  } catch (error) {
+    console.error(`Error loading UTM ${type} tracking state:`, error);
+    return []; // Graceful empty fallback list
+  }
+}
+
 export async function topPages(id: string) {
   try {
     const response = await fetch(
