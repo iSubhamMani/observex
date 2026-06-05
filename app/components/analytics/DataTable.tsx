@@ -1,15 +1,19 @@
 "use client";
 
+import { RiLoader5Line } from "react-icons/ri";
+
 type Row = { name: string; value: number; secondary?: number };
 
 export function DataTable({
   title,
   primaryLabel,
   secondaryLabel,
+  loading,
   rows,
 }: {
   title: string;
   primaryLabel: string;
+  loading: boolean;
   secondaryLabel?: string;
   rows: Row[];
 }) {
@@ -23,7 +27,17 @@ export function DataTable({
           {secondaryLabel && <span>{secondaryLabel}</span>}
         </div>
       </div>
+      {loading && (
+        <div className="py-12">
+          <RiLoader5Line className="animate-spin mx-auto text-2xl text-primary/70" />
+        </div>
+      )}
       <ul>
+        {rows.length == 0 && (
+          <li className="px-4 py-6 text-center text-sm text-muted-foreground">
+            No data available for the selected range.
+          </li>
+        )}
         {rows.map((r) => (
           <li
             key={r.name}

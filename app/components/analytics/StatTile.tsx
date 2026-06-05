@@ -8,7 +8,7 @@ export function StatTile({
   onClick,
 }: {
   label: string;
-  value: string;
+  value: string | number | React.ReactNode;
   delta?: string;
   active?: boolean;
   onClick?: () => void;
