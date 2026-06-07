@@ -88,7 +88,7 @@ export default function Dashboard() {
                 <Link
                   key={p.id}
                   href={`/project/${p.id}`}
-                  className="group rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/60"
+                  className="group rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/60 animate-fade-in"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15 text-primary">
