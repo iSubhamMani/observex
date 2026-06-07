@@ -79,11 +79,11 @@ export function UtmTabContent({
             return (
               <div
                 key={index}
-                className="group relative flex justify-between items-center px-3 py-2.5 text-sm rounded-md transition-colors hover:bg-muted/30 overflow-hidden"
+                className="animate-fade-in group relative flex justify-between items-center px-3 py-2.5 text-sm rounded-md transition-colors hover:bg-muted/30 overflow-hidden"
               >
                 {/* Modern progress backdrop track */}
                 <div
-                  className="absolute left-0 top-0 bottom-0 bg-primary/10 transition-all duration-500 ease-out pointer-events-none"
+                  className="absolute left-0 top-0 bottom-0 bg-primary/30 transition-all duration-500 ease-out pointer-events-none"
                   style={{ width: `${percentage}%` }}
                 />
 
