@@ -18,11 +18,9 @@ export const processDelete = async (event) => {
       `Initiating Tinybird lifecycle data purge sequence for websiteId: ${websiteId}`,
     );
 
-    // ⚡ FIX: The datasource name must be directly in the URL path path token
     const datasourceName = "incoming_events";
     const endpoint = `${TINYBIRD_API_URL}/v0/datasources/${datasourceName}/delete`;
 
-    // Encode parameters safely as application/x-www-form-urlencoded
     const params = new URLSearchParams();
     params.append("delete_condition", `websiteId = '${websiteId}'`);
 
