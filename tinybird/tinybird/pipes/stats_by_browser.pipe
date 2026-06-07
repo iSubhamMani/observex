@@ -1,0 +1,20 @@
+DESCRIPTION "Visitor statistics by browser"
+
+TOKEN "stats_by_browser_read_token" READ
+
+NODE endpoint
+SQL >
+    %
+    SELECT
+        browser as name,
+        uniq(visitorId) as visitors
+    FROM incoming_events
+    WHERE websiteId = {{ String(websiteId, required=true) }}
+        AND event_name = 'pageview'
+        AND timestamp >= {{ DateTime(start, required=true) }}
+        AND timestamp < {{ DateTime(end, required=true) }}
+        AND browser != '' AND browser IS NOT NULL
+    GROUP BY browser
+    ORDER BY visitors DESC
+    LIMIT {{ Int32(limit, 20) }}
+TYPE endpoint

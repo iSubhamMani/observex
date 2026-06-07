@@ -1,0 +1,61 @@
+DESCRIPTION "Time series grid containing all metric timeline configurations including chronological bounce rates"
+
+TOKEN "dashboard_read_token" READ
+
+NODE visitor_sessions_by_date
+SQL >
+    %
+    SELECT
+        if({{ String(interval, 'day') }} = 'hour', 
+           formatDateTime(toStartOfHour(timestamp), '%Y-%m-%dT%H:%M:%SZ'), 
+           formatDateTime(toDate(timestamp), '%Y-%m-%d')
+        ) as date,
+        visitorId,
+        count() as pageviews_count
+    FROM incoming_events
+    WHERE websiteId = {{ String(websiteId, required=true) }}
+        AND event_name = 'pageview'
+        AND timestamp >= {{ DateTime(start, required=true) }}
+        AND timestamp < {{ DateTime(end, required=true) }}
+    GROUP BY date, visitorId
+
+NODE traffic_series
+SQL >
+    SELECT
+        date,
+        sum(pageviews_count) as views,
+        count() as visitors,
+        -- Calculate bounce rate specifically for this time slice pass
+        if(visitors > 0, round(countIf(pageviews_count = 1) / visitors * 100, 1), 0.0) as bounce_rate
+    FROM visitor_sessions_by_date
+    GROUP BY date
+
+NODE duration_series
+SQL >
+    %
+    SELECT
+        if({{ String(interval, 'day') }} = 'hour', 
+           formatDateTime(toStartOfHour(timestamp), '%Y-%m-%dT%H:%M:%SZ'), 
+           formatDateTime(toDate(timestamp), '%Y-%m-%d')
+        ) as date,
+        round(avg(JSONExtractInt(meta, 'duration_seconds')), 1) as avg_time
+    FROM incoming_events
+    WHERE websiteId = {{ String(websiteId, required=true) }}
+        AND event_name = 'page_leave'
+        AND timestamp >= {{ DateTime(start, required=true) }}
+        AND timestamp < {{ DateTime(end, required=true) }}
+    GROUP BY date
+
+NODE endpoint
+SQL >
+    SELECT
+        t.date as date,
+        t.views as views,
+        t.visitors as visitors,
+        t.bounce_rate as bounce_rate,
+        coalesce(d.avg_time, 0.0) as avgTime
+    FROM traffic_series t
+    LEFT JOIN duration_series d ON t.date = d.date
+    ORDER BY date ASC
+
+TYPE endpoint

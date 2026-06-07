@@ -1,0 +1,20 @@
+DESCRIPTION "Time series of average duration spent on site by date"
+
+TOKEN "dashboard_read_token" READ
+
+NODE endpoint
+SQL >
+    %
+    SELECT
+        toDate(timestamp) as date,
+        round(avg(JSONExtractInt(meta, 'duration_seconds')), 1) as average_duration_seconds,
+        count() as total_leaves
+    FROM incoming_events
+    WHERE websiteId = {{ String(websiteId, required=true) }}
+        AND event_name = 'page_leave'
+        AND timestamp >= {{ DateTime(start, required=true) }}
+        AND timestamp < {{ DateTime(end, required=true) }}
+    GROUP BY date
+    ORDER BY date ASC
+
+TYPE endpoint

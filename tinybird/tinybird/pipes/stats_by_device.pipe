@@ -1,0 +1,20 @@
+DESCRIPTION "Visitor statistics by device type"
+
+TOKEN "stats_by_device_read_token" READ
+
+NODE endpoint
+SQL >
+    %
+    SELECT
+        device as name,
+        uniq(visitorId) as visitors
+    FROM incoming_events
+    WHERE websiteId = {{ String(websiteId, required=true) }}
+        AND event_name = 'pageview'
+        AND timestamp >= {{ DateTime(start, required=true) }}
+        AND timestamp < {{ DateTime(end, required=true) }}
+        AND device != '' AND device IS NOT NULL
+    GROUP BY device
+    ORDER BY visitors DESC
+    LIMIT {{ Int32(limit, 20) }}
+TYPE endpoint

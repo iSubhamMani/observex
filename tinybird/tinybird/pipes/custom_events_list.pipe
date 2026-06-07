@@ -1,0 +1,21 @@
+DESCRIPTION "Lists all custom events along with their total occurrence count and unique visitors"
+
+TOKEN "dashboard_read_token" READ
+
+NODE endpoint
+SQL >
+    %
+    SELECT
+        event_name,
+        count() as total_events,
+        uniq(visitorId) as unique_visitors
+    FROM incoming_events
+    WHERE websiteId = {{ String(websiteId, required=true) }}
+        -- ◄ CRITICAL: Filter out standard lifecycle traffic records
+        AND event_name NOT IN ('pageview', 'page_leave')
+        AND timestamp >= {{ DateTime(start, required=true) }}
+        AND timestamp < {{ DateTime(end, required=true) }}
+    GROUP BY event_name
+    ORDER BY total_events DESC
+
+TYPE endpoint

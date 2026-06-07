@@ -1,0 +1,42 @@
+DESCRIPTION "Visitor and pageview statistics grouped dynamically by UTM dimensions"
+
+TOKEN "dashboard_read_token" READ
+
+NODE endpoint
+SQL >
+    %
+    SELECT
+        {% if String(type) == 'source' %}
+            utm_source as name,
+        {% elif String(type) == 'medium' %}
+            utm_medium as name,
+        {% elif String(type) == 'campaign' %}
+            utm_campaign as name,
+        {% elif String(type) == 'term' %}
+            utm_term as name,
+        {% else %}
+            utm_content as name,
+        {% end %}
+        count() as views,
+        uniq(visitorId) as visitors
+    FROM incoming_events
+    WHERE websiteId = {{ String(websiteId, required=true) }}
+        AND event_name = 'pageview'
+        AND timestamp >= {{ DateTime(start, required=true) }}
+        AND timestamp < {{ DateTime(end, required=true) }}
+        {% if String(type) == 'source' %}
+            AND utm_source != '' AND utm_source IS NOT NULL
+        {% elif String(type) == 'medium' %}
+            AND utm_medium != '' AND utm_medium IS NOT NULL
+        {% elif String(type) == 'campaign' %}
+            AND utm_campaign != '' AND utm_campaign IS NOT NULL
+        {% elif String(type) == 'term' %}
+            AND utm_term != '' AND utm_term IS NOT NULL
+        {% else %}
+            AND utm_content != '' AND utm_content IS NOT NULL
+        {% end %}
+    GROUP BY name
+    ORDER BY views DESC
+    LIMIT {{ Int32(limit, 10) }}
+
+TYPE endpoint

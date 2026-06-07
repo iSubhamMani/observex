@@ -1,0 +1,17 @@
+DESCRIPTION "Dynamically discovers all top-level JSON keys present in the meta column for a specific custom event"
+
+TOKEN "dashboard_read_token" READ
+
+NODE endpoint
+SQL >
+    %
+    SELECT DISTINCT
+        arrayJoin(JSONExtractKeys(meta)) as key_name
+    FROM incoming_events
+    WHERE websiteId = {{ String(websiteId, required=true) }}
+        AND event_name = {{ String(event_name, required=true) }}
+        AND timestamp >= {{ DateTime(start, required=true) }}
+        AND timestamp < {{ DateTime(end, required=true) }}
+        AND meta != '' AND meta != '{}'
+
+TYPE endpoint

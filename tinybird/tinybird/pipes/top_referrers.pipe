@@ -1,0 +1,21 @@
+DESCRIPTION "Top referrers by unique visitors and pageviews"
+
+TOKEN "top_referrers_read_token" READ
+
+NODE endpoint
+SQL >
+    %
+    SELECT
+        referrer as name,
+        uniq(visitorId) as visitors,
+        count() as views
+    FROM incoming_events
+    WHERE websiteId = {{ String(websiteId, required=true) }}
+        AND event_name = 'pageview'
+        AND timestamp >= {{ DateTime(start, required=true) }}
+        AND timestamp < {{ DateTime(end, required=true) }}
+        AND referrer != '' AND referrer IS NOT NULL
+    GROUP BY referrer
+    ORDER BY visitors DESC
+    LIMIT {{ Int32(limit, 10) }}
+TYPE endpoint

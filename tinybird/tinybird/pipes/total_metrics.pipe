@@ -1,0 +1,70 @@
+DESCRIPTION "Total unique visitors, pageviews, bounce rate, and average duration snapshot with period deltas"
+
+TOKEN "total_metrics_read_token" READ
+
+NODE visitor_counts
+SQL >
+    %
+    WITH
+        toDateTime({{ DateTime(start, required=true) }}) AS c_start,
+        toDateTime({{ DateTime(end, required=true) }}) AS c_end,
+        toUnixTimestamp(c_end) - toUnixTimestamp(c_start) AS duration
+    SELECT
+        if(timestamp >= c_start AND timestamp < c_end, 1, 2) AS period_group,
+        visitorId,
+        count() as pageviews_count
+    FROM incoming_events
+    WHERE websiteId = {{ String(websiteId, required=true) }}
+        AND event_name = 'pageview'
+        AND timestamp >= subtractSeconds(c_start, duration)
+        AND timestamp < c_end
+    GROUP BY period_group, visitorId
+
+NODE duration_counts
+SQL >
+    %
+    WITH
+        toDateTime({{ DateTime(start, required=true) }}) AS c_start,
+        toDateTime({{ DateTime(end, required=true) }}) AS c_end,
+        toUnixTimestamp(c_end) - toUnixTimestamp(c_start) AS duration
+    SELECT
+        if(timestamp >= c_start AND timestamp < c_end, 1, 2) AS period_group,
+        avg(JSONExtractInt(meta, 'duration_seconds')) as avg_duration
+    FROM incoming_events
+    WHERE websiteId = {{ String(websiteId, required=true) }}
+        AND event_name = 'page_leave'
+        AND timestamp >= subtractSeconds(c_start, duration)
+        AND timestamp < c_end
+    GROUP BY period_group
+
+NODE period_metrics
+SQL >
+    SELECT
+        countIf(period_group = 1) as current_visitors,
+        coalesce(sumIf(pageviews_count, period_group = 1), 0) as current_views,
+        if(current_visitors > 0, round(countIf(period_group = 1 AND pageviews_count = 1) / current_visitors * 100, 1), 0.0) as current_bounce_rate,
+        coalesce((SELECT round(avg_duration, 1) FROM duration_counts WHERE period_group = 1), 0.0) as current_avg_duration,
+
+        countIf(period_group = 2) as prev_visitors,
+        coalesce(sumIf(pageviews_count, period_group = 2), 0) as prev_views,
+        if(prev_visitors > 0, round(countIf(period_group = 2 AND pageviews_count = 1) / prev_visitors * 100, 1), 0.0) as prev_bounce_rate,
+        coalesce((SELECT round(avg_duration, 1) FROM duration_counts WHERE period_group = 2), 0.0) as prev_avg_duration
+    FROM visitor_counts
+
+NODE endpoint
+SQL >
+    SELECT
+        current_visitors as unique_visitors,
+        current_views as total_pageviews,
+        current_bounce_rate as bounce_rate,
+        current_avg_duration as average_duration_seconds,
+        
+        -- Percentage changes for volumes (Defaults to 100.0 if current exists but prev is 0)
+        if(prev_visitors > 0, round(((current_visitors - prev_visitors) / prev_visitors) * 100, 1), if(current_visitors > 0, 100.0, 0.0)) as unique_visitors_delta,
+        if(prev_views > 0, round(((current_views - prev_views) / prev_views) * 100, 1), if(current_views > 0, 100.0, 0.0)) as total_pageviews_delta,
+        if(prev_avg_duration > 0, round(((current_avg_duration - prev_avg_duration) / prev_avg_duration) * 100, 1), if(current_avg_duration > 0, 100.0, 0.0)) as average_duration_delta,
+        
+        -- Absolute percentage points difference for bounce rate
+        round(current_bounce_rate - prev_bounce_rate, 1) as bounce_rate_delta
+    FROM period_metrics
+TYPE endpoint

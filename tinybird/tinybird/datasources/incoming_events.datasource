@@ -1,0 +1,24 @@
+DESCRIPTION "High-performance data source tracking raw analytics events from SQS Lambda worker"
+
+SCHEMA >
+    `timestamp` DateTime `json:$.timestamp`,
+    `visitorId` Nullable(String) `json:$.visitorId`,
+    `websiteId` String `json:$.websiteId`,
+    `event_name` String `json:$.event_name`,
+    `url` String `json:$.url`,
+    `pathname` String `json:$.pathname`,
+    `referrer` String `json:$.referrer`,
+    `screen_width` Int32 `json:$.screen_width`,
+    `browser` String `json:$.browser`,
+    `device` String `json:$.device`,
+    `country` String `json:$.country`,
+    `utm_source` Nullable(String) `json:$.utm_source`,
+    `utm_medium` Nullable(String) `json:$.utm_medium`,
+    `utm_campaign` Nullable(String) `json:$.utm_campaign`,
+    `utm_term` Nullable(String) `json:$.utm_term`,
+    `utm_content` Nullable(String) `json:$.utm_content`,
+    `meta` String `json:$.meta`
+
+ENGINE "MergeTree"
+
+ENGINE_SORTING_KEY "websiteId, timestamp, event_name"

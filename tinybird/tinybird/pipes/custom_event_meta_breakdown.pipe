@@ -1,0 +1,24 @@
+DESCRIPTION "Breaks down specific JSON metadata property metrics for a given custom event"
+
+TOKEN "dashboard_read_token" READ
+
+NODE endpoint
+SQL >
+    %
+    SELECT
+        -- Extracts the value of the key passed via the ?meta_key parameter
+        JSONExtractString(meta, {{ String(meta_key, required=true) }}) as property_value,
+        count() as total_actions,
+        uniq(visitorId) as unique_visitors
+    FROM incoming_events
+    WHERE websiteId = {{ String(websiteId, required=true) }}
+        AND event_name = {{ String(event_name, required=true) }}
+        AND timestamp >= {{ DateTime(start, required=true) }}
+        AND timestamp < {{ DateTime(end, required=true) }}
+        -- Filter out rows where the targeted JSON key doesn't exist
+        AND property_value != '' AND property_value IS NOT NULL
+    GROUP BY property_value
+    ORDER BY total_actions DESC
+    LIMIT {{ Int32(limit, 10) }}
+
+TYPE endpoint
