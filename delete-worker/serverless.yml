@@ -1,0 +1,14 @@
+service: delete-analytics-worker
+
+provider:
+  name: aws
+  runtime: nodejs24.x
+  region: ap-south-1
+  stage: dev
+  environment:
+    TINYBIRD_TOKEN: ${env:TINYBIRD_TOKEN}
+    TINYBIRD_URL: ${env:TINYBIRD_URL}
+
+functions:
+  processEvents:
+    handler: src/handlers/deleteRecords.processDelete
