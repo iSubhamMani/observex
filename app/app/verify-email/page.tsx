@@ -2,7 +2,8 @@
 
 import { AuthShell } from "@/components/AuthShell";
 import Field from "@/components/ui/Field";
-import axios from "axios";
+import { useToast } from "@/hooks/useToast";
+import axios, { isAxiosError } from "axios";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -13,6 +14,7 @@ export default function VerifyEmail() {
   const router = useRouter();
   const [typedEmail, setTypedEmail] = useState<string>("");
   const [otp, setOtp] = useState<string>("");
+  const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
   if (!email.trim()) {
@@ -50,11 +52,20 @@ export default function VerifyEmail() {
 
               if (res.status === 201) {
                 setTypedEmail("");
+                showToast(
+                  "success",
+                  "OTP sent successfully! Please check your email.",
+                );
                 router.replace(`/verify-email?email=${typedEmail.trim()}`);
               }
             } catch (error) {
-              // TODO: show error to user
-              console.error("Verification failed", error);
+              if (isAxiosError(error)) {
+                showToast(
+                  "error",
+                  error.response?.data.error ||
+                    "Failed to send OTP. Please try again.",
+                );
+              }
             } finally {
               setIsLoading(false);
             }
@@ -98,12 +109,18 @@ export default function VerifyEmail() {
                   email,
                 });
                 if (res.status === 200) {
-                  // Optionally show a success message or toast here
+                  showToast("success", "OTP resent! Please check your email.");
                   console.log("OTP resent successfully");
                 }
               } catch (error) {
                 console.log("OTP resend failed", error);
-                //TODO: show error to user
+                if (isAxiosError(error)) {
+                  showToast(
+                    "error",
+                    error.response?.data.error ||
+                      "Failed to resend OTP. Please try again.",
+                  );
+                }
               }
             }}
             className="text-primary hover:underline font-medium"
@@ -130,11 +147,17 @@ export default function VerifyEmail() {
             });
 
             if (res.status === 200) {
+              showToast("success", "Email verified successfully!");
               router.replace("/dashboard");
             }
           } catch (error) {
-            // TODO: show error to user
-            console.error("Verification failed", error);
+            if (isAxiosError(error)) {
+              showToast(
+                "error",
+                error.response?.data.error ||
+                  "Email verification failed. Please try again.",
+              );
+            }
           } finally {
             setIsLoading(false);
           }

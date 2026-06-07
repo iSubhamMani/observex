@@ -2,7 +2,8 @@
 
 import { AuthShell } from "@/components/AuthShell";
 import Field from "@/components/ui/Field";
-import axios from "axios";
+import { useToast } from "@/hooks/useToast";
+import axios, { isAxiosError } from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -15,8 +16,8 @@ export default function SignupPage() {
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-
   const router = useRouter();
+  const { showToast } = useToast();
 
   return (
     <AuthShell
@@ -55,13 +56,23 @@ export default function SignupPage() {
             });
 
             if (res.status === 201) {
+              showToast(
+                "success",
+                "Account created successfully! Please verify your email.",
+              );
               router.replace(
                 `/verify-email?email=${signupDetails.email.trim()}`,
               );
             }
           } catch (error) {
             console.error("Signup failed", error);
-            // TODO: show error to user
+            if (isAxiosError(error)) {
+              showToast(
+                "error",
+                error.response?.data?.error ||
+                  "Signup failed. Please try again.",
+              );
+            }
           } finally {
             setIsLoading(false);
           }

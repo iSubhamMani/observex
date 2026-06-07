@@ -2,7 +2,8 @@
 
 import { AuthShell } from "@/components/AuthShell";
 import Field from "@/components/ui/Field";
-import axios from "axios";
+import { useToast } from "@/hooks/useToast";
+import axios, { isAxiosError } from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -15,6 +16,7 @@ export default function LoginPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { showToast } = useToast();
 
   return (
     <AuthShell
@@ -49,11 +51,17 @@ export default function LoginPage() {
             });
 
             if (res.status === 200) {
+              showToast("success", "Logged in successfully!");
               router.replace("/dashboard");
             }
           } catch (error) {
-            console.error("Login failed", error);
-            // TODO: show error to user
+            if (isAxiosError(error)) {
+              showToast(
+                "error",
+                error.response?.data?.error ||
+                  "Login failed. Please try again.",
+              );
+            }
           } finally {
             setIsLoading(false);
           }
