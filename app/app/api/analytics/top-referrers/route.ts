@@ -3,7 +3,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   const websiteId = request.nextUrl.searchParams.get("websiteId");
-  const daysBack = request.nextUrl.searchParams.get("daysBack") || "7";
+  const startDate =
+    request.nextUrl.searchParams.get("start") ||
+    new Date(Date.now() - 86400000 * 7).toISOString();
+  const endDate =
+    request.nextUrl.searchParams.get("end") || new Date().toISOString();
+
   const limit = request.nextUrl.searchParams.get("limit") || "10";
 
   if (!websiteId) {
@@ -16,7 +21,8 @@ export async function GET(request: NextRequest) {
   try {
     const data = await getTopReferrers(
       websiteId,
-      parseInt(daysBack),
+      new Date(startDate),
+      new Date(endDate),
       parseInt(limit),
     );
     return NextResponse.json(data);

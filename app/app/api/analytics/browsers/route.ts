@@ -3,7 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   const websiteId = request.nextUrl.searchParams.get("websiteId");
-  const daysBack = request.nextUrl.searchParams.get("daysBack") || "7";
+  const startDate =
+    request.nextUrl.searchParams.get("start") ||
+    new Date(Date.now() - 86400000 * 7).toISOString();
+  const endDate =
+    request.nextUrl.searchParams.get("end") || new Date().toISOString();
 
   if (!websiteId) {
     return NextResponse.json(
@@ -13,7 +17,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const data = await getBrowserStats(websiteId, parseInt(daysBack));
+    const data = await getBrowserStats(
+      websiteId,
+      new Date(startDate),
+      new Date(endDate),
+    );
     return NextResponse.json(data);
   } catch (error) {
     console.error("Error fetching browser stats:", error);

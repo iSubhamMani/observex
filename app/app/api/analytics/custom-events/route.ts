@@ -1,4 +1,4 @@
-import { getCountryStats } from "@/lib/tinybird";
+import { getCustomEventsList } from "@/lib/tinybird";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -17,16 +17,16 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const data = await getCountryStats(
+    const data = await getCustomEventsList(
       websiteId,
       new Date(startDate),
       new Date(endDate),
     );
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Error fetching country stats:", error);
+    console.error("Error fetching custom events:", error);
     return NextResponse.json(
-      { error: "Failed to fetch country stats" },
+      { error: "Failed to fetch custom events" },
       { status: 500 },
     );
   }
