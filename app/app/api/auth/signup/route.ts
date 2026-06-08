@@ -5,6 +5,7 @@ import { generateOTP } from "@/lib/otp";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
+import redis from "@/lib/redis";
 
 const sqsClient = new SQSClient({
   region: process.env.AWS_REGION,
@@ -99,6 +100,10 @@ export async function POST(req: NextRequest) {
     });
 
     await sqsClient.send(command);
+
+    // store otp count in redis for rate limiting (max 5 OTPs per hour)
+    const redisKey = `otp_count:${email}`;
+    await redis.set(redisKey, "1", "EX", 60 * 60); // expire after 1 hour
 
     return NextResponse.json(
       {

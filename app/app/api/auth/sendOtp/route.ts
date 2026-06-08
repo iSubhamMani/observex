@@ -4,6 +4,7 @@ import { usersTable } from "@/db/schema";
 import { generateOTP } from "@/lib/otp";
 import { eq } from "drizzle-orm";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
+import redis from "@/lib/redis";
 
 const sqsClient = new SQSClient({
   region: process.env.AWS_REGION,
@@ -47,6 +48,24 @@ export async function POST(req: NextRequest) {
         },
         { status: 400 },
       );
+    }
+
+    // check otp count in redis for rate limiting (max 5 OTPs per hour)
+    const redisKey = `otp_count:${email}`;
+    const currentCount = await redis.get(redisKey);
+
+    if (currentCount && parseInt(currentCount) >= 5) {
+      return NextResponse.json(
+        { error: "Too many OTP requests. Please try again later." },
+        { status: 429 },
+      );
+    }
+
+    // if otp count exists in redis, increment it. otherwise set it to 1
+    if (currentCount) {
+      await redis.incr(redisKey);
+    } else {
+      await redis.set(redisKey, "1", "EX", 60 * 60); // expire after 1 hour
     }
 
     // Generate OTP
@@ -100,7 +119,7 @@ export async function POST(req: NextRequest) {
         message: "OTP sent successfully",
         email,
       },
-      { status: 201 },
+      { status: 200 },
     );
   } catch (error) {
     console.error("OTP send error:", error);
