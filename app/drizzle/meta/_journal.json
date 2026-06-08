@@ -15,6 +15,20 @@
       "when": 1780413673282,
       "tag": "0001_chilly_gorgon",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780928456147,
+      "tag": "0002_redundant_dexter_bennett",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1780929235384,
+      "tag": "0003_handy_spyke",
+      "breakpoints": true
     }
   ]
 }

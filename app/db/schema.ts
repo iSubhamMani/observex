@@ -29,3 +29,12 @@ export const projectsTable = pgTable("projects", {
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp().notNull().defaultNow(),
 });
+
+export const sharedProjectsTable = pgTable("shared_projects", {
+  shareToken: varchar({ length: 255 }).primaryKey(),
+  projectId: varchar({ length: 255 })
+    .notNull()
+    .references(() => projectsTable.websiteId),
+  createdAt: timestamp().notNull().defaultNow(),
+  updatedAt: timestamp().notNull().defaultNow(),
+});
