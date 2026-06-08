@@ -1,12 +1,14 @@
 "use client";
 
 import { useToast } from "@/hooks/useToast";
+import { useQueryClient } from "@tanstack/react-query";
 import axios, { isAxiosError } from "axios";
 import { useRouter } from "next/navigation";
 
 const Logout = () => {
   const router = useRouter();
   const { showToast } = useToast();
+  const queryClient = useQueryClient();
 
   return (
     <button
@@ -14,6 +16,7 @@ const Logout = () => {
         try {
           await axios.post("/api/auth/logout");
           showToast("success", "Logged out successfully!");
+          queryClient.clear();
           router.replace("/login");
         } catch (error) {
           if (isAxiosError(error)) {
