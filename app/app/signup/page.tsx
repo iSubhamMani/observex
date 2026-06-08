@@ -108,7 +108,7 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full flex items-center justify-centerrounded-md bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          className="w-full flex items-center justify-center rounded-md bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
         >
           {isLoading ? (
             <RiLoader5Line className="animate-spin size-4" />
