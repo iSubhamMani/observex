@@ -2,9 +2,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSearchParams, useRouter } from "next/navigation";
-import { FiCalendar, FiChevronDown, FiShare2 } from "react-icons/fi";
+import {
+  FiCalendar,
+  FiCheck,
+  FiChevronDown,
+  FiCopy,
+  FiExternalLink,
+  FiShare2,
+} from "react-icons/fi";
 import { BiLineChart } from "react-icons/bi";
 
 import {
@@ -42,6 +49,8 @@ import { RiLoader5Line } from "react-icons/ri";
 import { CustomEventsPanel } from "./analytics/CustomEventPanel";
 import { TbBounceLeft, TbClock, TbEye, TbUsers } from "react-icons/tb";
 import DeltaIndicator from "./DeltaIndicator";
+import { useToast } from "@/hooks/useToast";
+import Link from "next/link";
 
 const RANGES = [
   { id: "last_24_hours", label: "Last 24 hours", days: 1 },
@@ -111,6 +120,8 @@ function getDeviceIcon(deviceName: string) {
 interface AnalyticsCardProps {
   pid: string;
   projectCreatedAt: string;
+  isPublic?: boolean;
+  shareToken?: string;
 }
 
 function formatDuration(totalSeconds: number): string {
@@ -123,12 +134,30 @@ function formatDuration(totalSeconds: number): string {
 export default function AnalyticsCard({
   pid,
   projectCreatedAt,
+  isPublic = false,
+  shareToken = "",
 }: AnalyticsCardProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const rangeParam = searchParams.get("range") ?? "last_7_days";
   const customStart = searchParams.get("start");
   const customEnd = searchParams.get("end");
+  const [shareableLink, setShareableLink] = useState<string | null>(null);
+  const { showToast } = useToast();
+
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    if (!shareableLink) return;
+    try {
+      await navigator.clipboard.writeText(shareableLink);
+      setCopied(true);
+      // Reset icon after 2 seconds
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
+    }
+  };
 
   const { startDate, endDate } = useMemo(() => {
     const end = new Date();
@@ -217,6 +246,35 @@ export default function AnalyticsCard({
     gcTime: 5 * 60 * 1000,
   });
 
+  const shareProjectMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/share`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ pid }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to create share link. Please try again.");
+      }
+      return res.json();
+    },
+    onSuccess: ({ publicLink }) => {
+      showToast("success", "Shareable link created!");
+      setShareableLink(publicLink);
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        showToast(
+          "error",
+          error.message || "Failed to create share link. Please try again.",
+        );
+      }
+    },
+  });
+
   // Fallback states structured seamlessly during loading sequences
   const series = analytics?.enrichedSeries ?? [];
   const topPagesData = analytics?.topPagesData ?? [];
@@ -244,6 +302,55 @@ export default function AnalyticsCard({
   return (
     <div className="mt-8">
       {/* Header with range picker */}
+      {shareableLink && (
+        <div className="mb-6 space-y-2 animate-fade-in">
+          <label className="text-xs font-bold tracking-wider text-muted-foreground uppercase ml-1">
+            Public Link
+          </label>
+
+          <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50/60 p-2 pl-3 shadow-sm backdrop-blur-md dark:border-emerald-500/20 dark:bg-emerald-950/10">
+            {/* Status Icon */}
+            <FiShare2 className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+
+            {/* Link Container with Text Truncation */}
+            <div className="flex-1 min-w-0 text-sm font-medium text-emerald-900 dark:text-emerald-200/90">
+              <span className="truncate block select-all">{shareableLink}</span>
+            </div>
+
+            {/* Action Button Group */}
+            <div className="flex items-center gap-1 shrink-0">
+              {/* Visit Link Button */}
+              <Link
+                href={shareableLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Open dashboard in new tab"
+                className="p-2 rounded-lg text-emerald-700/70 hover:text-emerald-900 hover:bg-emerald-100/60 dark:text-emerald-400/70 dark:hover:text-emerald-200 dark:hover:bg-emerald-500/10 transition-colors"
+              >
+                <FiExternalLink className="size-4" />
+              </Link>
+
+              {/* Copy Link Button */}
+              <button
+                onClick={handleCopy}
+                type="button"
+                title="Copy link to clipboard"
+                className={`p-2 rounded-lg transition-all duration-200 flex items-center justify-center border ${
+                  copied
+                    ? "bg-emerald-600 text-white border-emerald-600 scale-95 shadow-md shadow-emerald-600/10"
+                    : "text-emerald-700 border-emerald-200/40 hover:text-emerald-900 hover:bg-emerald-100/60 dark:text-emerald-400 dark:border-emerald-500/10 dark:hover:text-emerald-200 dark:hover:bg-emerald-500/10"
+                }`}
+              >
+                {copied ? (
+                  <FiCheck className="size-4 animate-scale-in" />
+                ) : (
+                  <FiCopy className="size-4" />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <p className="text-base md:text-xl font-semibold flex items-center gap-2">
           <span>Analytics</span>
@@ -265,13 +372,26 @@ export default function AnalyticsCard({
                 params.delete("start");
                 params.delete("end");
               }
-              router.replace(`/project/${pid}?${params.toString()}`);
+              if (isPublic)
+                router.replace(`/share/${shareToken}?${params.toString()}`);
+              else router.replace(`/project/${pid}?${params.toString()}`);
             }}
           />
-          <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-medium hover:bg-accent">
-            <FiShare2 className="h-4 w-4" />{" "}
-            <span className="hidden sm:inline">Share</span>
-          </button>
+          {!isPublic && (
+            <button
+              onClick={() => shareProjectMutation.mutate()}
+              disabled={shareProjectMutation.isPending}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-medium transition-all duration-200 
+      hover:bg-accent hover:text-accent-foreground
+      disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-inherit"
+            >
+              <FiShare2 className="h-4 w-4" />{" "}
+              {shareProjectMutation.isPending && (
+                <RiLoader5Line className="animate-spin size-4 text-primary/70" />
+              )}
+              <span className="hidden sm:inline">Share</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -499,11 +619,6 @@ export default function AnalyticsCard({
         activeTab={activeUtmTab}
         onTabChange={setActiveUtmTab}
       />
-
-      <p className="mt-8 text-center text-xs text-muted-foreground">
-        ObservEx · Privacy-first, cookie-free analytics · Now with real-time
-        data
-      </p>
     </div>
   );
 }
