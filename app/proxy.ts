@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
 const authRoutes = ["/login", "/signup", "/verify-email"];
-const publicRoutes = ["/login", "/signup", "/verify-email", "/"];
-const protectedRoutes = ["/dashboard", "/analytics", "/new", "/project"];
+const publicRoutes = ["/login", "/signup", "/verify-email", "/", "/share"];
+const protectedRoutes = ["/dashboard", "/new", "/project"];
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
 
