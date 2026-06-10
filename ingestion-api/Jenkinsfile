@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                bat "docker build -t ${DOCKER_IMAGE} ."
+                bat "docker build -t ${DOCKER_IMAGE} -f ingestion-api/Dockerfile ingestion-api"
             }
         }
         stage('Push') {
@@ -25,7 +25,7 @@ pipeline {
                          sudo docker rm api-observex || true && ^
                          sudo docker pull ${DOCKER_IMAGE} && ^
                          sudo docker run -d -p 3001:3000 ^
-                        --env-file /home/ubuntu/apps/api-observex/.env
+                        --env-file /home/ubuntu/apps/api-observex/.env ^
                         --name api-observex ${DOCKER_IMAGE}" """
                 }
             }
