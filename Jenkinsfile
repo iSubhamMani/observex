@@ -25,10 +25,23 @@ pipeline {
                         keyFileVariable: 'SSH_KEY'
                     )
                 ]) {
-                     bat """
-                        icacls "%SSH_KEY%" /inheritance:r
-                        icacls "%SSH_KEY%" /grant:r "%USERNAME%:R"
-                        ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no ubuntu@3.7.145.83 "sudo docker stop api-observex || true && sudo docker rm api-observex || true && sudo docker pull ${DOCKER_IMAGE} && sudo docker run -d --restart unless-stopped -p 3001:3000 --env-file /home/ubuntu/apps/api-observex/.env --name api-observex ${DOCKER_IMAGE}"
+                     powershell """
+                        \$keyPath = "\$env:TEMP\\deploy_key.pem"
+                        Copy-Item "\$env:SSH_KEY" \$keyPath
+
+                        # Strip all inherited permissions, grant only current user
+                        \$acl = Get-Acl \$keyPath
+                        \$acl.SetAccessRuleProtection(\$true, \$false)
+                        \$rule = New-Object System.Security.AccessControl.FileSystemAccessRule(
+                            \$env:USERNAME, "Read", "Allow"
+                        )
+                        \$acl.SetAccessRule(\$rule)
+                        Set-Acl \$keyPath \$acl
+
+                        ssh -i \$keyPath -o StrictHostKeyChecking=no ubuntu@3.7.145.83 `
+                            "sudo docker stop api-observex || true && sudo docker rm api-observex || true && sudo docker pull ${DOCKER_IMAGE} && sudo docker run -d --restart unless-stopped -p 3001:3000 --env-file /home/ubuntu/apps/api-observex/.env --name api-observex ${DOCKER_IMAGE}"
+
+                        Remove-Item \$keyPath -Force
                     """
                 }
             }
