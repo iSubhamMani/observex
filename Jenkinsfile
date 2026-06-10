@@ -25,13 +25,11 @@ pipeline {
                         keyFileVariable: 'SSH_KEY'
                     )
                 ]) {
-                    bat """ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no ubuntu@3.7.145.83 ^
-                        "sudo docker stop api-observex || true && ^
-                         sudo docker rm api-observex || true && ^
-                         sudo docker pull ${DOCKER_IMAGE} && ^
-                         sudo docker run -d --restart unless-stopped -p 3001:3000 ^
-                        --env-file /home/ubuntu/apps/api-observex/.env ^
-                        --name api-observex ${DOCKER_IMAGE}" """
+                     bat """
+                        icacls "%SSH_KEY%" /inheritance:r
+                        icacls "%SSH_KEY%" /grant:r "%USERNAME%:R"
+                        ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no ubuntu@3.7.145.83 "sudo docker stop api-observex || true && sudo docker rm api-observex || true && sudo docker pull ${DOCKER_IMAGE} && sudo docker run -d --restart unless-stopped -p 3001:3000 --env-file /home/ubuntu/apps/api-observex/.env --name api-observex ${DOCKER_IMAGE}"
+                    """
                 }
             }
         }
