@@ -29,11 +29,12 @@ pipeline {
                         \$keyPath = "\$env:TEMP\\deploy_key.pem"
                         Copy-Item "\$env:SSH_KEY" \$keyPath
 
-                        # Strip all inherited permissions, grant only current user
-                        \$acl = Get-Acl \$keyPath
+                        # Use current Windows identity instead of username string
+                        \$currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+                        \$acl = New-Object System.Security.AccessControl.FileSecurity
                         \$acl.SetAccessRuleProtection(\$true, \$false)
                         \$rule = New-Object System.Security.AccessControl.FileSystemAccessRule(
-                            \$env:USERNAME, "Read", "Allow"
+                            \$currentUser, "Read", "Allow"
                         )
                         \$acl.SetAccessRule(\$rule)
                         Set-Acl \$keyPath \$acl
