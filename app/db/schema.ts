@@ -25,7 +25,7 @@ export const projectsTable = pgTable("projects", {
   domain: varchar({ length: 255 }).notNull(),
   owner: integer()
     .notNull()
-    .references(() => usersTable.id),
+    .references(() => usersTable.id, { onDelete: "cascade" }),
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp().notNull().defaultNow(),
 });
@@ -34,7 +34,9 @@ export const sharedProjectsTable = pgTable("shared_projects", {
   shareToken: varchar({ length: 255 }).primaryKey(),
   projectId: varchar({ length: 255 })
     .notNull()
-    .references(() => projectsTable.websiteId),
+    .references(() => projectsTable.websiteId, {
+      onDelete: "cascade",
+    }),
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp().notNull().defaultNow(),
 });
