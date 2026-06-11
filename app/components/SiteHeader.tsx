@@ -8,18 +8,18 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <Logo />
         <nav className="hidden gap-8 text-sm text-muted-foreground md:flex">
-          <a href="#product" className="hover:text-foreground">
+          <Link href="/#product" className="hover:text-foreground">
             Product
-          </a>
-          <a href="#why" className="hover:text-foreground">
-            Why ObservEx
-          </a>
-          <a href="#pricing" className="hover:text-foreground">
-            Pricing
-          </a>
-          <a href="#resources" className="hover:text-foreground">
-            Resources
-          </a>
+          </Link>
+          <Link href="/#how-it-works" className="hover:text-foreground">
+            How it works
+          </Link>
+          <Link href="/demo" className="hover:text-foreground">
+            Demo
+          </Link>
+          <Link href="/docs" className="hover:text-foreground">
+            Docs
+          </Link>
         </nav>
         <div className="flex items-center gap-2">
           <ThemeToggle />
