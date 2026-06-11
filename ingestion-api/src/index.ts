@@ -23,7 +23,7 @@ app.use(
   }),
 );
 
-app.use(express.json({ limit: "10kb" }));
+app.use(express.json({ limit: "50kb" }));
 app.use(express.text()); // Fallback for sendBeacon (sometimes sends as text)
 
 // Handle navigator.sendBeacon() edge cases where browsers might send text strings
