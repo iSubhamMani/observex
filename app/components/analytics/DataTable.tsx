@@ -54,7 +54,7 @@ export function DataTable({
             />
             <div className="relative flex items-center gap-2 truncate font-mono z-10">
               {r.icon && (
-                <span className="flex-shrink-0 text-muted-foreground/90 select-none">
+                <span className="shrink-0 text-muted-foreground/90 select-none">
                   {r.icon}
                 </span>
               )}
