@@ -15,7 +15,7 @@ functions:
     handler: src/handlers/eventConsumer.processBatch
     events:
       - sqs:
-          arn: arn:aws:sqs:ap-south-1:059639822914:observex-event-queue
+          arn: arn:aws:sqs:ap-south-1:417242952915:observex-event-queue
           # High-Performance Batch Optimization:
           batchSize: 500
           maximumBatchingWindow: 5 # Waits up to 5 seconds to collect 500 messages before firing
