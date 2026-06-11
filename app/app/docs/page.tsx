@@ -8,9 +8,9 @@ import { FaRegLightbulb } from "react-icons/fa";
 import { IoWarning } from "react-icons/io5";
 import { SiteHeader } from "@/components/SiteHeader";
 
-const reactInstall = `npm install @subhamxmani/analytics-sdk`;
+const reactInstall = `npm install @subhamxmani/observex-sdk`;
 
-const reactIntegration = `import { ReactAnalytics } from "@subhamxmani/analytics-sdk";
+const reactIntegration = `import { ReactAnalytics } from "@subhamxmani/observex-sdk";
 import { Routes, Route } from "react-router-dom";
 
 function App() {
@@ -30,7 +30,7 @@ function App() {
   );
 }`;
 
-const nextjsIntegration = `import { NextAnalytics } from "@subhamxmani/analytics-sdk";
+const nextjsIntegration = `import { NextAnalytics } from "@subhamxmani/observex-sdk";
 
 export default function RootLayout({
   children,
@@ -51,7 +51,7 @@ export default function RootLayout({
   );
 }`;
 
-const trackerHook = `import { useTracker } from "@subhamxmani/analytics-sdk";
+const trackerHook = `import { useTracker } from "@subhamxmani/observex-sdk";
 
 function BuyButton() {
   const { track } = useTracker();
@@ -67,7 +67,7 @@ function BuyButton() {
   );
 }`;
 
-const impressionHook = `import { useImpressionTracker } from "@subhamxmani/analytics-sdk";
+const impressionHook = `import { useImpressionTracker } from "@subhamxmani/observex-sdk";
 
 function PromoBanner() {
   const bannerRef = useImpressionTracker<HTMLDivElement>("banner_view", {
