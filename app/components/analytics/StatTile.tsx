@@ -18,7 +18,7 @@ export function StatTile({
   return (
     <button
       onClick={onClick}
-      className={`flex flex-1 flex-col items-start gap-1 rounded-lg border px-5 py-4 text-left transition-colors ${
+      className={`shadow-sm flex flex-1 flex-col items-start gap-1 rounded-lg border px-5 py-4 text-left transition-colors animate-fade-in ${
         active
           ? "border-primary bg-primary/10"
           : "border-border bg-card/40 hover:border-primary/40"

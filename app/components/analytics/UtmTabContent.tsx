@@ -38,7 +38,7 @@ export function UtmTabContent({
       : 1;
 
   return (
-    <div className="w-full mt-8">
+    <div className="w-full mt-8 animate-fade-in">
       {/* ──► SINGLE INLINE HEADER: Tabs on Left, Metric Labels on Right ◄── */}
       <div className="flex justify-between items-end border-b border-border pb-2 mb-3 px-1">
         {/* Tabs Switcher Buttons (Left) */}
@@ -49,7 +49,7 @@ export function UtmTabContent({
               onClick={() => onTabChange(tab.id)}
               className={`text-xs sm:text-sm font-medium transition-all relative pb-2 ${
                 activeTab === tab.id
-                  ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-primary font-semibold"
+                  ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary font-semibold"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >

@@ -98,7 +98,7 @@ export default function ProjectPage() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["project", pid] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
       showToast("success", "Project deleted successfully!");
       setIsDeleteModalOpen(false);
       router.replace("/dashboard");

@@ -22,7 +22,7 @@ export default function SignupPage() {
   return (
     <AuthShell
       title="Start for free"
-      subtitle="Create an account and get your ObservEx dashboard up and running in minutes."
+      subtitle="Create an account and get your Observex dashboard up and running in minutes."
       footer={
         <>
           Already have an account?{" "}

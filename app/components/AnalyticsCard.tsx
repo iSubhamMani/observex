@@ -495,7 +495,7 @@ export default function AnalyticsCard({
       </div>
 
       {/* Chart Panel Section */}
-      <div className="mt-4 rounded-lg border border-border bg-card/40 p-4">
+      <div className="mt-4 rounded-lg border border-border bg-card/40 p-4 shadow-sm">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold">
             {metric === "views" ? (
@@ -711,7 +711,7 @@ function RangePicker({
                     max={eDate || today}
                     value={sDate}
                     onChange={(e) => setSDate(e.target.value)}
-                    className="w-full appearance-none bg-muted/20 border border-border text-xs rounded-md px-2.5 py-2 focus:border-primary/60 focus:ring-1 focus:ring-primary/60 outline-none transition-all text-foreground [color-scheme:dark]"
+                    className="w-full appearance-none bg-muted/20 border border-border text-xs rounded-md px-2.5 py-2 focus:border-primary/60 focus:ring-1 focus:ring-primary/60 outline-none transition-all text-foreground scheme-dark"
                   />
                 </div>
                 <div className="flex flex-col gap-1 w-full">
@@ -724,7 +724,7 @@ function RangePicker({
                     max={today}
                     value={eDate}
                     onChange={(e) => setEDate(e.target.value)}
-                    className="w-full appearance-none bg-muted/20 border border-border text-xs rounded-md px-2.5 py-2 focus:border-primary/60 focus:ring-1 focus:ring-primary/60 outline-none transition-all text-foreground [color-scheme:dark]"
+                    className="w-full appearance-none bg-muted/20 border border-border text-xs rounded-md px-2.5 py-2 focus:border-primary/60 focus:ring-1 focus:ring-primary/60 outline-none transition-all text-foreground scheme-dark"
                   />
                 </div>
               </div>

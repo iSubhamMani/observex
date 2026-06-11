@@ -165,9 +165,11 @@ export default function VerifyEmail() {
         className="space-y-4"
       >
         <Field
-          onChange={(e) => setOtp(e.target.value)}
+          value={otp}
+          maxLength={6}
           label="Verification Code"
           type="text"
+          onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
           required
         />
         <button

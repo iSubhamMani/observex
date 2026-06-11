@@ -98,7 +98,7 @@ export function CustomEventsPanel({ pid, start, end }: CustomEventsPanelProps) {
   if (!isListLoading && eventsList.length === 0) return null;
 
   return (
-    <div className="mt-8 grid gap-6 lg:grid-cols-5 animate-fade-in">
+    <div className="mt-8 grid gap-6 shadow-sm lg:grid-cols-5 animate-fade-in">
       {/* LEFT PANEL: Events List */}
       <div className="lg:col-span-2 border border-border bg-card/40 rounded-lg p-4 backdrop-blur-sm flex flex-col">
         {/* Panel Header */}
@@ -128,7 +128,7 @@ export function CustomEventsPanel({ pid, start, end }: CustomEventsPanelProps) {
             <RiLoader5Line className="animate-spin text-xl text-primary/70" />
           </div>
         ) : (
-          <div className="space-y-1 overflow-y-auto max-h-[350px] scrollbar-none flex-1">
+          <div className="space-y-1 overflow-y-auto max-h-87.5 scrollbar-none flex-1">
             {filteredEvents.length === 0 ? (
               <div className="text-center py-8 text-xs text-muted-foreground italic">
                 No events match your search query.
@@ -145,7 +145,7 @@ export function CustomEventsPanel({ pid, start, end }: CustomEventsPanelProps) {
                     }}
                     className={`w-full relative flex justify-between items-center px-3 py-2 text-xs rounded-md transition-all font-mono overflow-hidden ${
                       activeEvent === evt.event_name
-                        ? "bg-primary text-primary-foreground font-semibold"
+                        ? "bg-accent font-semibold"
                         : "text-muted-foreground hover:bg-muted/20 hover:text-foreground"
                     }`}
                   >
@@ -155,12 +155,12 @@ export function CustomEventsPanel({ pid, start, end }: CustomEventsPanelProps) {
                       style={{ width: `${eventPercentage}%` }}
                     />
                     <span
-                      className={`relative z-10 truncate max-w-[70%] ${activeEvent === evt.event_name ? "text-primary-foreground" : "text-muted-foreground"}`}
+                      className={`relative z-10 truncate max-w-[70%] ${activeEvent === evt.event_name ? "text-secondary-foreground" : "text-muted-foreground"}`}
                     >
                       {evt.event_name}
                     </span>
                     <span
-                      className={`relative z-10 font-sans font-medium tabular-nums ${activeEvent === evt.event_name ? "text-primary-foreground" : "text-muted-foreground"}`}
+                      className={`relative z-10 font-sans font-medium tabular-nums ${activeEvent === evt.event_name ? "text-secondary-foreground" : "text-muted-foreground"}`}
                     >
                       {evt.total_events.toLocaleString()}
                     </span>

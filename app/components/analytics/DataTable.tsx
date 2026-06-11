@@ -23,7 +23,7 @@ export function DataTable({
 }) {
   const max = Math.max(...rows.map((r) => r.value), 1);
   return (
-    <div className="rounded-lg border border-border bg-card/40">
+    <div className="rounded-lg border border-border bg-card/40 shadow-sm animate-fade-in">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <h3 className="text-sm font-semibold">{title}</h3>
         <div className="flex gap-8 text-xs font-medium uppercase tracking-wider text-muted-foreground">

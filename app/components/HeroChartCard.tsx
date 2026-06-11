@@ -10,7 +10,9 @@ export function HeroChartCard() {
     <div className="rounded-2xl border border-border bg-card p-5 shadow-xl">
       <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wider text-muted-foreground">
         <span>Top pages</span>
-        <span className="flex gap-10">
+        <span className="flex gap-4">
+          {" "}
+          {/* gap-10 → gap-4 */}
           <span>People</span>
           <span>Views</span>
         </span>
@@ -19,16 +21,20 @@ export function HeroChartCard() {
         {rows.map((r) => (
           <li
             key={r.p}
-            className={`flex items-center justify-between rounded-md px-3 py-2${
+            className={`flex items-center justify-between rounded-md px-3 py-2 ${
+              // ← space before ${}
               r.active
                 ? "bg-primary/15 ring-1 ring-primary/40"
                 : "hover:bg-muted/40"
             }`}
           >
-            <span className="truncate">{r.p}</span>
-            <span className="flex gap-10 tabular-nums text-muted-foreground">
-              <span className="w-12 text-right">{r.people}</span>
-              <span className="w-12 text-right">{r.views}</span>
+            <span className="truncate mr-2">{r.p}</span> {/* added mr-2 */}
+            <span className="flex gap-4 tabular-nums text-muted-foreground shrink-0">
+              {" "}
+              {/* gap-10 → gap-4, added shrink-0 */}
+              <span className="w-10 text-right">{r.people}</span>{" "}
+              {/* w-12 → w-10 */}
+              <span className="w-10 text-right">{r.views}</span>
             </span>
           </li>
         ))}
