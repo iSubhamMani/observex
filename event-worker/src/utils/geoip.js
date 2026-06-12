@@ -35,12 +35,25 @@ export async function initGeoIp() {
  * @returns { { country: string, region: string, city: string } }
  */
 export function lookupGeo(ipAddress) {
-  // 1. Instantly handle local development addresses so loops don't break
+  if (!ipAddress) {
+    return { country: "Unknown", region: "Unknown", city: "Unknown" };
+  }
+
+  // 1. Extract clean IP if comma-separated (x-forwarded-for chains)
+  let cleanIp = ipAddress.split(",")[0].trim();
+
+  // 2. Remove IPv6 mapping prefix if present (::ffff:123.45.67.89 -> 123.45.67.89)
+  if (cleanIp.startsWith("::ffff:")) {
+    cleanIp = cleanIp.substring(7);
+  }
+
+  // 3. Instantly handle local & private Docker development addresses so lookup doesn't fail
   if (
-    !ipAddress ||
-    ipAddress === "::1" ||
-    ipAddress === "127.0.0.1" ||
-    ipAddress.startsWith("192.168.")
+    cleanIp === "::1" ||
+    cleanIp === "127.0.0.1" ||
+    cleanIp.startsWith("192.168.") ||
+    cleanIp.startsWith("10.") ||
+    cleanIp.startsWith("172.") // Captures Docker internal networks
   ) {
     return {
       country: "Local",
@@ -49,29 +62,19 @@ export function lookupGeo(ipAddress) {
     };
   }
 
-  // 2. Extract clean IP if it contains a port or is comma-separated (x-forwarded-for chains)
-  let cleanIp = ipAddress.split(",")[0].trim();
-
-  // 3. Fallback safely if the database reader didn't load properly
+  // 4. Fallback safely if the database reader didn't load properly
   if (!cityReader) {
     return { country: "Unknown", region: "Unknown", city: "Unknown" };
   }
 
   try {
-    // Sync lookup from memory buffer
     const response = cityReader.city(cleanIp);
-
     return {
-      country: response.country?.isoCode || "Unknown", // e.g., 'US', 'IN', 'GB'
-      region: response.subdivisions?.[0]?.name || "Unknown", // e.g., 'California', 'West Bengal'
-      city: response.city?.name || "Unknown", // e.g., 'San Francisco', 'Kolkata'
+      country: response.country?.isoCode || "Unknown",
+      region: response.subdivisions?.[0]?.name || "Unknown",
+      city: response.city?.name || "Unknown",
     };
   } catch (error) {
-    // MaxMind throws an error if the IP format is valid but simply not found in their database
-    return {
-      country: "Unknown",
-      region: "Unknown",
-      city: "Unknown",
-    };
+    return { country: "Unknown", region: "Unknown", city: "Unknown" };
   }
 }

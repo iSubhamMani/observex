@@ -33,8 +33,7 @@ export const ingestEvent = async (req: Request, res: Response) => {
       | undefined;
 
     // Provide a safe fallback for local development where x-forwarded-for might not exist
-    const ip =
-      req.headers["x-forwarded-for"] || req.socket.remoteAddress || "127.0.0.1";
+    const ip = (req.ip || "127.0.0.1").toString();
 
     // Fail fast if critical browser identifiers are missing (IP check removed to prevent local dev blocking)
     if (!userAgent || !rawOrigin) {
